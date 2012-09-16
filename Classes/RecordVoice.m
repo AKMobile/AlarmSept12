@@ -19,20 +19,11 @@
 
 
 // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-/*
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization.
-    }
-    return self;
-}
-*/
 - (id)init {
     self = [super init];
     if(self != nil) {
 		//6240d771 c9a0778e 92aa9a3e 5dd712e2 0ec263ad f25ba8b6 635eac5d 8969e5d9
-		NSLog(@"pushing......");
+//		NSLog(@"pushing......");
         self.deviceToken = @"6240d771 c9a0778e 92aa9a3e 5dd712e2 0ec263ad f25ba8b6 635eac5d 8969e5d9";
 		
         self.payload = @"{\"aps\":{\"alert\":\"You got a new alarm message!\",\"badge\":5,\"sound\":\"Blow.aiff\"},\"acme1\":\"bar\",\"acme2\":42}";
@@ -59,9 +50,6 @@
 	[self.view addSubview:backgroundImage];
 	[self.view sendSubviewToBack:backgroundImage];
 	[backgroundImage release];	
-		
-
-
 }
 -(void)viewWillAppear:(BOOL)animated
 {
@@ -69,13 +57,7 @@
 	
 	lblStatusMsg.text = @"Stopped";
 	progressView.progress = 0.0;
-	
-	// [self InitialCheckMethod];
-	
-	
 }
-
-
 
 -(IBAction)btnSetAlarm_Clicked
 {
@@ -87,12 +69,10 @@
 	[self.navigationController pushViewController:alarm animated:NO];
 	
 	[alarm release];
-	
 }
 
 -(IBAction)btnViewAlarm_Clicked
 {
-	
 	ViewAlarm *viewAlarm=[[ViewAlarm alloc]init];
 	
 	//viewAlarm.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
@@ -100,7 +80,6 @@
 	
 	[self.navigationController pushViewController:viewAlarm animated:NO];
 	[viewAlarm release];
-	
 }
 
 -(IBAction)btnSendAlarm_Clicked
@@ -112,13 +91,11 @@
 	
 	[self.navigationController pushViewController:send animated:NO];
 	[send release];
-	
 }
-
 
 - (void) handleTimer
 {
-	progressView.progress += .01;
+	progressView.progress += 0.034;
 	if(progressView.progress == 1.0)
 	{
 		[timer invalidate];
@@ -128,15 +105,13 @@
 
 
 -(IBAction)startRecording
-
 {
 	[SingletonClass sharedobject].k++;
 	i=[SingletonClass sharedobject].k;
 	NSLog(@"iiii...%d",i);
 	if(i>5)
 	{
-			NSLog(@"55555");
-		
+//			NSLog(@"55555");
 		UIAlertView *alert=[[UIAlertView alloc] initWithTitle:@"Delete Items First" message:@"" delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
@@ -149,7 +124,7 @@
 	
 	NSArray *searchPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentPath = [searchPaths objectAtIndex:0];
-	NSLog(@"ccc...%@",documentPath);
+//	NSLog(@"ccc...%@",documentPath);
 	
 	
 	if(toggle)
@@ -170,7 +145,7 @@
 		[recordSetting setValue :[NSNumber numberWithInt:kAudioFormatAppleIMA4] forKey:AVFormatIDKey];
 		
 		// We can use 44100, 32000, 24000, 16000 or 12000 depending on sound quality
-		[recordSetting setValue:[NSNumber numberWithFloat:44100.0] forKey:AVSampleRateKey];
+		[recordSetting setValue:[NSNumber numberWithFloat:12000.0] forKey:AVSampleRateKey];
 		
 		// We can use 2(if using additional h/w) or 1 (iPhone only has one microphone)
 		[recordSetting setValue:[NSNumber numberWithInt: 1] forKey:AVNumberOfChannelsKey];
@@ -183,14 +158,15 @@
 		//I know this is a mess of collapsed things into 1 call.  I can break it out if need be.
 		
 		strRecordedVoice=[NSString stringWithFormat: @"%.0f.%@", [NSDate timeIntervalSinceReferenceDate] * 1000.0, @"caf"];
-		recordedTmpFile = [NSURL fileURLWithPath:[documentPath stringByAppendingPathComponent:strRecordedVoice]];
+        //  Added by Arshad
+        NSString *recordedVoiceFullPath = [documentPath stringByAppendingPathComponent:strRecordedVoice];
+        [SingletonClass sharedobject].strRecordPath = strRecordedVoice;
+        
+		recordedTmpFile = [NSURL fileURLWithPath:recordedVoiceFullPath];
 		NSLog(@"Using Filepath called: %@",recordedTmpFile);
 		NSLog(@"Using str: %@",strRecordedVoice);
 		//Setup the recorder to use this file and record to it.
 		recorder = [[ AVAudioRecorder alloc] initWithURL:recordedTmpFile settings:recordSetting error:&error];
-		
-		
-		
 		
 		//Use the recorder to start the recording.
 		//Im not sure why we set the delegate to self yet.  
@@ -200,111 +176,35 @@
 		//the subsstems so that when we actually say "record" it starts right away.
 		[recorder prepareToRecord];
 		//Start the actual Recording
-		[recorder record];
+//		[recorder record];
 		//There is an optional method for doing the recording for a limited time see 
 		//[recorder recordForDuration:(NSTimeInterval) 10]
 		progressView.progress = 0.0;
-		[recorder recordForDuration:(NSTimeInterval) 2];
-		
+        //  Duration must be less than equal to 29 seconds
+		[recorder recordForDuration:29];
 		lblStatusMsg.text = @"Recording...";
-		
-		timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(handleTimer) userInfo:nil repeats:YES];
-		
-		
-		
+		timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(handleTimer) userInfo:nil repeats:YES];
 	}
 	else
 	{
 		toggle = YES;
-		
 		//Stop the recorder.
 		[recorder stop];
 	}
 	
-	
-	
-/*	
-	recorderFilePath = [[NSString stringWithFormat:@"%@/MySound.caf", DOCUMENTS_FOLDER] retain];
-	
-	NSLog(@"recorderFilePath: %@",recorderFilePath);
-	
-	NSURL *url = [NSURL fileURLWithPath:recorderFilePath];
-	
-	err = nil;
-	
-	NSData *audioData = [NSData dataWithContentsOfFile:[url path] options: 0 error:&err];
-	if(audioData)
-	{
-		NSFileManager *fm = [NSFileManager defaultManager];
-		[fm removeItemAtPath:[url path] error:&err];
-	}
-	
-	err = nil;
-	recorder = [[ AVAudioRecorder alloc] initWithURL:url settings:recordSetting error:&err];
-	if(!recorder){
-        NSLog(@"recorder: %@ %d %@", [err domain], [err code], [[err userInfo] description]);
-        UIAlertView *alert =
-        [[UIAlertView alloc] initWithTitle: @"Warning"
-								   message: [err localizedDescription]
-								  delegate: nil
-						 cancelButtonTitle:@"OK"
-						 otherButtonTitles:nil];
-        [alert show];
-        [alert release];
-        return;
-	}
-	
-	//prepare to record
-	[recorder setDelegate:self];
-	[recorder prepareToRecord];
-	recorder.meteringEnabled = YES;
-	
-	BOOL audioHWAvailable = audioSession.inputIsAvailable;
-	if (! audioHWAvailable) {
-        UIAlertView *cantRecordAlert =
-        [[UIAlertView alloc] initWithTitle: @"Warning"
-								   message: @"Audio input hardware not available"
-								  delegate: nil
-						 cancelButtonTitle:@"OK"
-						 otherButtonTitles:nil];
-        [cantRecordAlert show];
-        [cantRecordAlert release]; 
-        return;
-	}
-	
-	// start recording
-	[recorder recordForDuration:(NSTimeInterval) 2];
-	
-	lblStatusMsg.text = @"Recording...";
-	progressView.progress = 0.0;
-	timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(handleTimer) userInfo:nil repeats:YES];
-	
-	*/
-	
-		
-	
-	
 }
+
 -(IBAction)stopRecording
 {
-
 	lblStatusMsg.text = @"Stopped";
 
 	[recorder stop];
-	
-	
-	
-	//[timer invalidate];
-	//progressView.progress = 1.0;
-	
-
 }
-
 
 
 - (IBAction)playSound
 {
-	NSLog(@"alert111 ");
+//	NSLog(@"alert111 ");
 	avPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:recordedTmpFile error:&error];
 	[avPlayer prepareToPlay];
 	[avPlayer play];
@@ -365,7 +265,11 @@
 - (void)audioRecorderDidFinishRecording:(AVAudioRecorder *) aRecorder successfully:(BOOL)flag
 {
 	NSLog (@"audioRecorderDidFinishRecording:successfully:");
-	[timer invalidate];
+	if(progressView.progress != 1.0)
+	{
+		[timer invalidate];
+		lblStatusMsg.text = @"Stopped";
+	}
 	lblStatusMsg.text = @"Stopped";
 	progressView.progress = 1.0;
 }
@@ -391,7 +295,7 @@
 			NSLog(@"call..0");
 		[SingletonClass sharedobject].audio = [NSData dataWithContentsOfURL:recordedTmpFile];
 			
-			[[SingletonClass sharedobject].arrRecordedVoice addObject:@"RecordingOne"];
+        [[SingletonClass sharedobject].arrRecordedVoice addObject:@"RecordingOne"];
 	
 		UIAlertView *alert=[[UIAlertView alloc] initWithTitle:@"Voice Recorded" message:@"" delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
 		[alert show];

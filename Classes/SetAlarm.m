@@ -14,37 +14,8 @@
 @synthesize tableView,arrayAlarm,dateTimePicker;
 @synthesize scheduleControl;
 
-
-
-// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-/*
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization.
-    }
-    return self;
-}
-*/
-//- (id)init {
-//    self = [super init];
-//    if(self != nil) {
-//        self.deviceToken = @"6240d771c9a0778e92aa9a3e5dd712e20ec263adf25ba8b6635eac5d8969e5d9";
-//		
-//        self.payload = @"{\"aps\":{\"alert\":\"You got a new alarm message!\",\"badge\":5,\"sound\":\"Blow.aiff\"},\"acme1\":\"bar\",\"acme2\":42}";
-//		
-//        self.certificate = [[NSBundle mainBundle] 
-//							pathForResource:@"aps_development" ofType:@"cer"];
-//    }
-//    return self;
-//}//
-//
-
--(void)viewWillAppear:(BOOL)animated
-{
-	
-	
-	
+#pragma mark - View Life Cycle
+- (void)viewWillAppear:(BOOL)animated {
 	[self.tableView reloadData];
 }
 
@@ -73,35 +44,22 @@
 	
 	[self.view addSubview:backgroundImage];
 	[self.view sendSubviewToBack:backgroundImage];
-	[backgroundImage release];	
-	
-	
+	[backgroundImage release];
 }
 
 
--(void) presentMessage :(NSString *)message
-{
-	
-
+- (void)presentMessage:(NSString *)message {
 	UIAlertView *alert=[[UIAlertView alloc] initWithTitle:@"Alarm Clock" message:message delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
 	[alert show];
 	[alert release];
 }
 
-
-
-
-
--(void)addNewNotification{
-	
-	//iTalkAlarmAppDelegate *ap=[[UIApplication sharedApplication]delegate];
-	
+- (void)addNewNotification {
 	UILocalNotification* localNotification = [[UILocalNotification alloc] init];               
 	localNotification.alertBody =@"HI";
 	localNotification.fireDate = [[NSDate date] dateByAddingTimeInterval:5*60];
 	localNotification.timeZone = [NSTimeZone localTimeZone];
 	localNotification.applicationIconBadgeNumber = localNotification.applicationIconBadgeNumber+1;
-	//localNotification.soundName = UILocalNotificationDefaultSoundName;
 	
 	if([SingletonClass sharedobject].intrecord==1)
 	{
@@ -112,23 +70,17 @@
 		//ap.intrecord=2;
 	}
 	else {
-		localNotification.soundName=[SingletonClass sharedobject].strAlarmSound;
+//		localNotification.soundName = [SingletonClass sharedobject].strAlarmSound;
+        localNotification.soundName = [NSString stringWithFormat:@"../Documents/%@",[SingletonClass sharedobject].strRecordPath];
 	}
-	
 	
 	[[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
 	[localNotification release];
-	NSLog(@"%@",[[UIApplication sharedApplication] scheduledLocalNotifications]);
 }
 
-
-
-
-
-- (void)showReminder:(NSString *)text
-{
+- (void)showReminder:(NSString *)text {
 	RecordVoice *voice=[[RecordVoice alloc]init];
-	NSLog(@"intsound..%d",[SingletonClass sharedobject].intsound);
+//	NSLog(@"intsound..%d",[SingletonClass sharedobject].intsound);
 		if([SingletonClass sharedobject].intsound==1)
 		{
 		
@@ -138,13 +90,11 @@
 		{
 			//RecordVoice *voice=[[RecordVoice alloc]init];
 			[voice listenRecord];
-			
 		}
 		if([SingletonClass sharedobject].intsound==3)
 		{
 		//RecordVoice *voice=[[RecordVoice alloc]init];
-		[voice listenRecord];
-		
+            [voice listenRecord];
 		}
 		if([SingletonClass sharedobject].intsound==4)
 		{
@@ -159,8 +109,7 @@
 		
 		}
 	
-	
-	NSLog(@"alert text>>%@",text);
+//	NSLog(@"alert text>>%@",text);
 	UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Reminder" 
 														message:text delegate:self
 											  cancelButtonTitle:@"Ok"
@@ -169,36 +118,27 @@
 	
 	[alertView release];
 	[voice release];
-	NSLog(@"alert ");
 }
+
+#pragma mark - UIAlertViewDelegate
 -(void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-
-NSString *title = [alertView buttonTitleAtIndex:buttonIndex]; 
-
-	NSLog(@"alert titledelegate..>>%@",title);
+    NSString *title = [alertView buttonTitleAtIndex:buttonIndex]; 
+//	NSLog(@"alert titledelegate..>>%@",title);
 	if(buttonIndex == 0)  
 	{  
 		[[UIApplication sharedApplication] cancelAllLocalNotifications];
-		NSLog(@"Button 1 was selected.");  
+//		NSLog(@"Button 1 was selected.");  
 	}  
 	else if([title isEqualToString:@"Snooze"])  
 	{  
 		[self addNewNotification];
 	}
-
-
-
 }
 
 
-
--(void) scheduleLocalNotificationWithDate:(NSDate *)fireDate
+-(void)scheduleLocalNotificationWithDate:(NSDate *)fireDate
 {
-	//iTalkAlarmAppDelegate *ap=[[UIApplication sharedApplication]delegate];
-
-	
-	
 	if([[SingletonClass sharedobject].strAlarmTitle isEqualToString:@""]||[SingletonClass sharedobject].strAlarmTitle==nil)
 	{
 		NSLog(@"in if");
@@ -211,33 +151,19 @@ NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
 		[[SingletonClass sharedobject].arrAlarmName addObject:[SingletonClass sharedobject].strAlarmTitle];
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	Class cls = NSClassFromString(@"UILocalNotification");
 	if (cls != nil) {
-	//UILocalNotification *notification =[[UILocalNotification alloc]init];
-	UILocalNotification *notification =[[cls alloc] init];
-	notification.fireDate=fireDate;
-	notification.alertBody=[SingletonClass sharedobject].strAlarmTitle;//[SingletonClass sharedobject].strAlarmTitle;
-	notification.timeZone = [NSTimeZone defaultTimeZone];
-	//notification.repeatInterval    = 0;
-	notification.alertAction       = @"Show me";
-	//notification.applicationIconBadgeNumber = 0;
+        UILocalNotification *notification =[[cls alloc] init];
+        notification.fireDate=fireDate;
+        notification.alertBody=[SingletonClass sharedobject].strAlarmTitle;
+        notification.timeZone = [NSTimeZone defaultTimeZone];
+        //notification.repeatInterval    = 0;
+        notification.alertAction = @"Show me";
+        //notification.applicationIconBadgeNumber = 0;
+//		notification.soundName=[SingletonClass sharedobject].strAlarmSound;
+        NSString *pathOfVoice = [NSString stringWithFormat:@"../Documents/%@",[SingletonClass sharedobject].strRecordPath];
+        notification.soundName = pathOfVoice;
 
-	
-	
-	
-		notification.soundName=[SingletonClass sharedobject].strAlarmSound;
-
-	
 /*	if([[SingletonClass sharedobject].strAlarmTitle isEqualToString:@""]||[SingletonClass sharedobject].strAlarmTitle==nil)
 	{
 		NSLog(@"in if");
@@ -253,8 +179,7 @@ NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
 	
 	[[SingletonClass sharedobject].arrAlarmTime addObject:[SingletonClass sharedobject].strAlarmTime];
 	
-	NSLog(@"in time...%@",[SingletonClass sharedobject].arrAlarmTime);
-	
+//	NSLog(@"in time...%@",[SingletonClass sharedobject].arrAlarmTime);
 	
 	NSInteger index =	[SingletonClass sharedobject].segmentValue;// [scheduleControl selectedSegmentIndex];
 	switch (index) {
@@ -275,58 +200,25 @@ NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
 			notification.repeatInterval = 0;
 			break;
 	}
-	NSLog(@"title...%@",[SingletonClass sharedobject].strAlarmTitle);
+//	NSLog(@"title...%@",[SingletonClass sharedobject].strAlarmTitle);
 	
 	NSDictionary *userDict = [NSDictionary dictionaryWithObject:[SingletonClass sharedobject].strAlarmTitle
 														 forKey:kRemindMeNotificationDataKey];
 	notification.userInfo = userDict;
 	
-	
-	
 	[[UIApplication sharedApplication] scheduleLocalNotification:notification];
 		
-		
-		//UIApplication *app = [UIApplication sharedApplication];
-		
-		
-		
-	/*	
-		UIApplication *app = [UIApplication sharedApplication];
-		NSArray *eventArray = [app scheduledLocalNotifications];
-		for (int i=0; i<[eventArray count]; i++)
-		{
-			UILocalNotification *notification = [eventArray objectAtIndex:i];
-			NSDictionary *userInfoCurrent = notification.userInfo;
-			NSString *uid=[NSString stringWithFormat:@"%@",[userInfoCurrent valueForKey:@"kRemindMeNotificationDataKey"]];
-			NSLog(@"id...%@",uid);
-			NSLog(@"info...%@",userInfoCurrent);
-			//if ([uid isEqualToString:uidtodelete])
-			//{
-				//Cancelling local notification
-			//	[app cancelLocalNotification:oneEvent];
-			//	break;
-			//}
-		}
-		*/
-		
-	//[SingletonClass sharedobject].strAlarmTitle=nil;
-		
-		NSLog(@"notificationr");
 	[notification release];
 		
-		NSArray *eventArray = [[UIApplication sharedApplication] scheduledLocalNotifications];
-		
-		NSLog(@"eventArray...%@",eventArray);
-		
-	
+//    NSArray *eventArray = [[UIApplication sharedApplication] scheduledLocalNotifications];
+//		
+//    NSLog(@"eventArray...%@",eventArray);	
 	}
 }
 
 -(IBAction)alarmSetButtonTapped:(id)sender
 {
-	NSLog(@"alarm set button tapped");
-	//iTalkAlarmAppDelegate *ap=[[UIApplication sharedApplication] delegate];
-	
+//	NSLog(@"alarm set button tapped");
 	NSDateFormatter *dateFormatter=[[NSDateFormatter alloc]init];
 	//dateFormatter.timeZone=[NSLocale defaultTimeZone];
 	dateFormatter.locale = [NSLocale systemLocale];
@@ -336,72 +228,43 @@ NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
 	NSString *dateTimeString=[dateFormatter stringFromDate:dateTimePicker.date];
 	NSLog(@"date>>>>>%@",dateTimeString);
 	[SingletonClass sharedobject].strAlarmTime=dateTimeString;
-	
-	
+
 	[dateFormatter release];
 	
 	[self scheduleLocalNotificationWithDate:dateTimePicker.date];
 	
 	[self presentMessage:@"Alarm set!"];
-	
-
-
 }
 -(IBAction)alarmCancelButtonTapped:(id)sender
 {
-	NSLog(@"alarm cancel button tapped");
-	
+//	NSLog(@"alarm cancel button tapped");	
 	[[UIApplication sharedApplication] cancelAllLocalNotifications];
-	
 	[self presentMessage:@"Alarm Cancelled!"];
-
-	
 }
-
-
 
 -(IBAction)btnRecord_Clicked
 {
 	RecordVoice *record=[[RecordVoice alloc]init];
-	
-	//record.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-   // [self presentModalViewController:record animated:NO];
-	
 	[self.navigationController pushViewController:record animated:NO];
-	
-	
 	[record release];
-	
-	
-	
 }
 
 -(IBAction)btnViewAlarm_Clicked
 {
-	
 	ViewAlarm *viewAlarm=[[ViewAlarm alloc]init];
-	
-	//viewAlarm.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    //[self presentModalViewController:viewAlarm animated:NO];
-	
-	
+		
 	[self.navigationController pushViewController:viewAlarm animated:NO];
 	
 	[viewAlarm release];
-	
 }
 
 -(IBAction)btnSendAlarm_Clicked
 {
 	sendAlarm *send=[[sendAlarm alloc]init];
 	
-	//send.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-   // [self presentModalViewController:send animated:NO];
-	
 	[self.navigationController pushViewController:send animated:NO];
 	
 	[send release];
-	
 }
 
 
@@ -451,7 +314,7 @@ NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
 */
 
 
-#pragma mark Table view methods________________________
+#pragma mark - Table view methods
 
 // To learn about using table views, see the TableViewSuite sample code  
 //		and Table View Programming Guide for iPhone OS.
@@ -501,21 +364,12 @@ NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
 //	 To conform to the Human Interface Guidelines, selections should not be persistent --
 //	 deselect the row after it has been selected.
 - (void) tableView: (UITableView *) tableView didSelectRowAtIndexPath: (NSIndexPath *) indexPath {
-	
-	
 	if(indexPath.row==0)
-	{
-		 
-		//scheduleControl.hidden=NO;
-		//tableView.hidden=YES;
-		
+	{		
 		AlarmRepeat *repeat=[[AlarmRepeat alloc]init];
 		repeat.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
 		[self presentModalViewController:repeat animated:YES];  
-		
-		
 	}
-	
 	
 	if(indexPath.row==1)
 	{
@@ -523,59 +377,32 @@ NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
 		
 		sound.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
 		[self presentModalViewController:sound animated:YES];  
-		
-		
-	}//[tableView deselectRowAtIndexPath: indexPath animated: YES];
-	
+	}
 	
 	if(indexPath.row==2)
 	{
 		setLabel *lbl=[[setLabel alloc]init];
-	
 		lbl.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
 		[self presentModalViewController:lbl animated:YES];  
-	
-	
 	}
-	
-	
 }
-
 
 #pragma mark -
 #pragma mark Navigation Controller delegate
 
-
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations.
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
-
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
-	NSLog(@"alert222");
-    
     // Release any cached data, images, etc. that aren't in use.
 }
 
 - (void)viewDidUnload {
     [super viewDidUnload];
-	
-	//[SingletonClass sharedobject].strAlarmTitle=nil;
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
 }
 
 
-- (void)dealloc {
-	
+- (void)dealloc {	
 	[[SingletonClass sharedobject].strAlarmTitle release];
     [super dealloc];
 }
-
-
 @end
